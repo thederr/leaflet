@@ -14,10 +14,6 @@ import { defineComponent, ref } from 'vue'
 export default defineComponent({
     name: 'MapPage',
 
-    // components: {
-    //     EssentialLink
-    // },
-
     setup() {
         const leftDrawerOpen = ref(false)
         const drawMode = ref(false); // false for markers, true for circles
