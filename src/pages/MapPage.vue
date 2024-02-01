@@ -10,14 +10,9 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
 import { defineComponent, ref } from 'vue'
-import EssentialLink from 'components/EssentialLink.vue'
 
 export default defineComponent({
     name: 'MapPage',
-
-    components: {
-        EssentialLink
-    },
 
     setup() {
         const leftDrawerOpen = ref(false)
@@ -29,7 +24,6 @@ export default defineComponent({
 
         return {
             drawMode,
-            essentialLinks: linksList,
             leftDrawerOpen,
             toggleLeftDrawer() {
                 leftDrawerOpen.value = !leftDrawerOpen.value

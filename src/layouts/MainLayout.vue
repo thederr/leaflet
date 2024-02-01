@@ -17,15 +17,12 @@
         <q-item-label header>
           Essential Links
         </q-item-label>
-
         <EssentialLink v-for="link in essentialLinks" :key="link.title" v-bind="link" />
       </q-list>
     </q-drawer>
 
     <q-page-container>
       <router-view />
-      <!-- <div id="map" style="height: 500px; width: 100%"></div>
-      <q-toggle v-model="drawMode" :label="'Draw Mode: ' + (drawMode ? 'Circles' : 'Markers')" color="green" /> -->
     </q-page-container>
   </q-layout>
 </template>
