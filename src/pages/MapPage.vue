@@ -1,97 +1,65 @@
 <template>
     <div>
-        <div id="map" style="height: 500px; width: 100%"></div>
-        <q-toggle v-model="drawMode" :label="'Draw Mode: ' + (drawMode ? 'Circles' : 'Markers')" color="green" />
+        <div id="map" style="height: 500px;"></div>
     </div>
 </template>
   
 <script>
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import 'leaflet-draw';
+import 'leaflet-draw/dist/leaflet.draw.css';
 
-import { defineComponent, ref } from 'vue'
+export default {
+    name: 'LeafletMap',
 
-export default defineComponent({
-    name: 'MapPage',
-
-    setup() {
-        const leftDrawerOpen = ref(false)
-        const drawMode = ref(false); // false for markers, true for circles
-
-        const toggleLeftDrawer = () => {
-            leftDrawerOpen.value = !leftDrawerOpen.value;
-        };
-
-        return {
-            drawMode,
-            leftDrawerOpen,
-            toggleLeftDrawer() {
-                leftDrawerOpen.value = !leftDrawerOpen.value
-            }
-        }
-    },
     mounted() {
+        // Initialize the map
         const map = L.map('map').setView([51.505, -0.09], 13);
+
+        // Add OpenStreetMap tile layer to the map
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap contributors',
         }).addTo(map);
 
-        // Marker
-        const marker = L.marker([51.5, -0.09]).addTo(map);
-        marker.bindPopup("<b>Hello world!</b><br>I am a popup.").openPopup();
+        // Initialize the FeatureGroup to store editable layers
+        const editableLayers = new L.FeatureGroup();
+        map.addLayer(editableLayers);
 
-        // Circle
-        L.circle([51.508, -0.11], {
-            color: 'red',
-            fillColor: '#f03',
-            fillOpacity: 0.5,
-            radius: 500
-        }).addTo(map);
-
-        // Polygon
-        L.polygon([
-            [51.509, -0.08],
-            [51.503, -0.06],
-            [51.51, -0.047]
-        ]).addTo(map);
-
-        map.on('click', function (e) {
-            let marker = L.marker(e.latlng).addTo(map);
-            marker.bindPopup('<div>Marker at ' + e.latlng.toString() + '<br><button class="marker-delete-btn">Delete</button></div>');
-
-            // Event listener for the delete button in the popup
-            marker.on('popupopen', function () {
-                let deleteButton = document.querySelector('.marker-delete-btn');
-                deleteButton.addEventListener('click', function () {
-                    map.removeLayer(marker);
-                });
-            });
+        // Initialize the draw control and pass it the FeatureGroup of editable layers
+        const drawControl = new L.Control.Draw({
+            edit: {
+                featureGroup: editableLayers,
+                poly: {
+                    allowIntersection: false,
+                },
+            },
+            draw: {
+                polyline: false,
+                rectangle: false,
+                polygon: false,
+                marker: true,
+                circlemarker: false,
+                // Enable drawing circles
+                circle: true,
+            },
         });
+        map.addControl(drawControl);
 
-        map.on('click', function (e) {
-            if (drawMode.value) {
-                // Draw circle mode
-                L.circle(e.latlng, {
-                    color: 'red',
-                    fillColor: '#f03',
-                    fillOpacity: 0.5,
-                    radius: 500
-                }).addTo(map);
-            } else {
-                // Draw marker mode
-                let marker = L.marker(e.latlng).addTo(map);
-                marker.bindPopup('<div>Marker at ' + e.latlng.toString() + '<br><button class="marker-delete-btn">Delete</button></div>');
-
-                marker.on('popupopen', function () {
-                    let deleteButton = document.querySelector('.marker-delete-btn');
-                    deleteButton.addEventListener('click', function () {
-                        map.removeLayer(marker);
-                    });
-                });
-            }
+        // Handle the creation of shapes
+        map.on(L.Draw.Event.CREATED, function (event) {
+            const layer = event.layer;
+            editableLayers.addLayer(layer);
+            // Do something with the layer, e.g., save the coordinates
         });
-
-    }
-})
+    },
+};
 </script>
+  
+<style scoped>
+#map {
+    width: 100%;
+    height: 100%;
+}
+</style>
   
